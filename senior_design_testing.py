@@ -13,6 +13,7 @@ import urllib.request
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import time
 #import imutils
 
 def midpoint(ptA, ptB):
@@ -21,9 +22,26 @@ def midpoint(ptA, ptB):
 
 
 cap = cv2.VideoCapture(1)
+cap.set(3,800)
+
+cap.set(4,800)
+#cap.set(5, 1080)
+
+time.sleep(2)
+
+cap.set(15, -8.0)
+
+# =============================================================================
+# currentWB = cap.get(cv2.CAP_PROP_WHITE_BALANCE_BLUE_U)
+# cap.set(cv2.CAP_PROP_WHITE_BALANCE_BLUE_U, currentWB)
+# cap.set()
+# cap.set(cv2.CAP_PROP_AUTOFOCUS, 0) # turn the autofocus off
+# =============================================================================
+    
 count = 0
 
 while True:
+    
     ret, img = cap.read()
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret,thresh = cv2.threshold(imgray,90,255,0)
@@ -31,9 +49,10 @@ while True:
     thresh = cv2.erode(thresh, None, iterations=1)
     img2, imgContours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     cv2.drawContours(img, imgContours, -1, (0,255,0), 3)
+
     
-    if count == 0 and (cv2.waitKey(1) & 0xFF == ord('r')):
-    #if count == 0:
+    #if count == 0 and (cv2.waitKey(1) & 0xFF == ord('r')):
+    if count == 0:
         savedImage = img2
         savedImageColor = img
         cv2.drawContours(savedImageColor, imgContours, 0, (0,255,0), 3) #0 argument draws it at outer contour
@@ -65,6 +84,7 @@ while True:
 #         print(hierarchy[0][0][3])   #parent of contour
 # =============================================================================
         maxArea = 0
+        print(hierarchy[0][0])
         parent = hierarchy[0][0][0]
         #if hierarchy[0][0][2] == -1:
         while hierarchy[0][parent][2] == -1:
@@ -76,7 +96,8 @@ while True:
                 break
                 
         #elif parent[2] > -1:
-        while hierarchy[0][parent][0] > -1:
+        #Need to revise this while statement for case where the only one outer contour since there will be no next
+        while hierarchy[0][parent][0] > -1 or hierarchy[0][parent][2] > -1:
             robotNumber = hierarchy[0][0]
             #currentContour = 0   ################ Might not be able to assume initial parent is contour 0!!!
             contourTotal = 1
@@ -84,7 +105,7 @@ while True:
             #This loop draws all the direct children of the parent contour a different color from the parent
             while True:
                 #hierarchy[0][child]
-                
+                print(hierarchy[0])
                 #Finding the biggest child contour in order to determine which contour to use to locate the front
                 #of the robot
                 currentArea = cv2.contourArea(imgContours[childorNext])
@@ -94,10 +115,11 @@ while True:
                 
                 if contourTotal == 1:
                     # Gets the centroid of the parent (Robot body)
-                    M = cv2.moments(imgContours[hierarchy[0][childorNext][3]])
-                    cx = int(M['m10']/M['m00'])
-                    cy = int(M['m01']/M['m00'])
-                    centroidPoint = (cx, cy)
+                    if cv2.contourArea(imgContours[hierarchy[0][childorNext][3]]) > 50:
+                        M = cv2.moments(imgContours[hierarchy[0][childorNext][3]])
+                        cx = int(M['m10']/M['m00'])
+                        cy = int(M['m01']/M['m00'])
+                        centroidPoint = (cx, cy)
                 cv2.drawContours(savedImageColor, imgContours, childorNext, (255,0,0), 3)
                 #print("current contour", hierarchy[0][childorNext])
                 childorNext = hierarchy[0][childorNext][0]
@@ -110,12 +132,13 @@ while True:
             
             print("contour Total", contourTotal)
             # Finding info to pass to ros for robot 2
-            if contourTotal == 3:
+            
+            if contourTotal == 2:
                 #Prints Robot 2 at centroid position of the body
                 print("centroid point", centroidPoint)
-                cv2.putText(savedImageColor, "Robot 2",
+                cv2.putText(savedImageColor, "Robot 1",
         	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
-                1, (255, 255, 255), 2)
+                1, (0, 150, 150), 2)
                 #Finds centroid position of the front contour, which will be
                 #used to find front of the robot
                 FrontM = cv2.moments(imgContours[frontContour])
@@ -123,7 +146,28 @@ while True:
                 Frontcy = int(FrontM['m01']/FrontM['m00'])
                 FrontCentroidPoint = (Frontcx, Frontcy)
                 cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
+                #finding the relative coordinates of the front contour with
+                #respect to the center of the body
+                netPositionX = Frontcx - cx
+                netPositionY = Frontcy - cy
+                netPosition = (netPositionX, netPositionY)
+                print("net position", netPosition)
+            
+            elif contourTotal == 3:
+                #Prints Robot 2 at centroid position of the body
+                print("centroid point", centroidPoint)
+                cv2.putText(savedImageColor, "Robot 2",
+        	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
+                1, (0, 150, 150), 2)
+                #Finds centroid position of the front contour, which will be
+                #used to find front of the robot
+                FrontM = cv2.moments(imgContours[frontContour])
+                Frontcx = int(FrontM['m10']/FrontM['m00'])
+                Frontcy = int(FrontM['m01']/FrontM['m00'])
+                FrontCentroidPoint = (Frontcx, Frontcy)
+                cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
                 #finding the relative coordinates of the front contour with
                 #respect to the center of the body
                 netPositionX = Frontcx - cx
@@ -141,7 +185,7 @@ while True:
                 print("centroid point", centroidPoint)
                 cv2.putText(savedImageColor, "Robot 3",
         	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
-                1, (255, 255, 255), 2)
+                1, (0, 150, 150), 2)
                 #Finds centroid position of the front contour, which will be
                 #used to find front of the robot
                 FrontM = cv2.moments(imgContours[frontContour])
@@ -149,7 +193,7 @@ while True:
                 Frontcy = int(FrontM['m01']/FrontM['m00'])
                 FrontCentroidPoint = (Frontcx, Frontcy)
                 cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
                 #finding the relative coordinates of the front contour with
                 #respect to the center of the body
                 netPositionX = Frontcx - cx
@@ -157,9 +201,34 @@ while True:
                 netPosition = (netPositionX, netPositionY)
                 print("net position", netPosition)
                 
+            elif contourTotal == 5:
+                #Prints Robot 2 at centroid position of the body
+                print("centroid point", centroidPoint)
+                cv2.putText(savedImageColor, "Robot 4",
+        	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
+                1, (0, 150, 150), 2)
+                #Finds centroid position of the front contour, which will be
+                #used to find front of the robot
+                FrontM = cv2.moments(imgContours[frontContour])
+                Frontcx = int(FrontM['m10']/FrontM['m00'])
+                Frontcy = int(FrontM['m01']/FrontM['m00'])
+                FrontCentroidPoint = (Frontcx, Frontcy)
+                cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
+                #finding the relative coordinates of the front contour with
+                #respect to the center of the body
+                netPositionX = Frontcx - cx
+                netPositionY = Frontcy - cy
+                netPosition = (netPositionX, netPositionY)
+                print("net position", netPosition)
+                
+            # Goes to the next parent in the same level (should be another robot body)
             if hierarchy[0][parent][0] > -1:
                 parent = hierarchy[0][parent][0]
+            elif hierarchy[0][parent][0] == -1:
+                break
                 
+            # Resets the contour total for the next robot body
             contourTotal = 1
        
         
@@ -277,11 +346,11 @@ while True:
 #             # these are the outermost parent components
 #             cv2.rectangle(img,(x,y),(x+w,y+h),(255,255,0),3)
 # =============================================================================
-    if count == 1:
+    if count == 0:
         cv2.imshow('saved image', savedImage)
         cv2.imshow('saved image with color', savedImageColor)
 
-    count = 0    
+    count = 0
 
     cv2.imshow('img', img)
     cv2.imshow('test', thresh)
