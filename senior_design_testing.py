@@ -26,8 +26,9 @@ cap.set(3,800)
 
 cap.set(4,800)
 #cap.set(5, 1080)
+cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
 
-time.sleep(2)
+time.sleep(1)
 
 cap.set(15, -8.0)
 
@@ -84,8 +85,13 @@ while True:
 #         print(hierarchy[0][0][3])   #parent of contour
 # =============================================================================
         maxArea = 0
+        
+        #Might need to revise for base case(where 0th position of the hierarchy is the parent)
+        print(hierarchy[0])
         print(hierarchy[0][0])
-        parent = hierarchy[0][0][0]
+        #parent = hierarchy[0][0][0]
+        # Might stick with parent equation above, but setting it to 0 solved the base case
+        parent = 0
         #if hierarchy[0][0][2] == -1:
         while hierarchy[0][parent][2] == -1:
             cv2.drawContours(savedImageColor, imgContours, hierarchy[0][parent][2],(0,255,0),3) #Only one contour
@@ -346,7 +352,7 @@ while True:
 #             # these are the outermost parent components
 #             cv2.rectangle(img,(x,y),(x+w,y+h),(255,255,0),3)
 # =============================================================================
-    if count == 0:
+    if count == 1:
         cv2.imshow('saved image', savedImage)
         cv2.imshow('saved image with color', savedImageColor)
 
@@ -360,6 +366,7 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+    
 cv2.destroyAllWindows()
 cap.release()
 
