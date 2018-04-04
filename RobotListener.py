@@ -12,7 +12,7 @@ import sys
 import SocketWrapper
 import pigpio
 
-pi = pigpio.pi()
+#pi = pigpio.pi()
 
 
 def deparseKiwi( msg ):
@@ -39,7 +39,7 @@ def initPWMfreq():
 	pi.set_PWM_frequency(19, 50000)
 
 if __name__ == '__main__':
-	s = SocketWrapper.SocketWrapper(is_listener=True, socket_info=('localhost', 5020))
+	s = SocketWrapper.SocketWrapper(is_listener=True, socket_info=('', 5020))
 	initPWMfreq()
 	try:
 	    while True:
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 	        	print("got vel, deparsing kiwi")
 	        	deparseKiwi(message)
 	        else:
-	        	print(message)
+	        	print("message only" + message)
 	except KeyboardInterrupt:
 	    s.close_socket()
 	    sys.exit()
