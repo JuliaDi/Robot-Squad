@@ -21,30 +21,30 @@ def setKiwiOutput( msg ):
 	if pwm1 > 0:
 		pi.write(5, 1)
 		pi.write(6, 0)
-	else if pwm1 < 0
+	elif pwm1 < 0:
 		pi.write(5, 0)
 		pi.write(6, 1)
-	else
+	else:
 		pi.write(5, 0)
 		pi.write(6, 0)
 
-	if pwm2 > 0
+	if pwm2 > 0:
 		pi.write(23, 1)
 		pi.write(24, 0)
-	else if pwm2 < 0
+	elif pwm2 < 0:
 		pi.write(23, 0)
 		pi.write(24, 1)
-	else
+	else:
 		pi.write(23, 0)
 		pi.write(24, 0)
 
-	if pwm3 > 0
+	if pwm3 > 0:
 		pi.write(26, 1)
 		pi.write(20, 0)
-	else if pwm3 < 0
+	elif pwm3 < 0:
 		pi.write(26, 0)
 		pi.write(20, 1)
-	else
+	else:
 		pi.write(26, 0)
 		pi.write(20, 0)
 
