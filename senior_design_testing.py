@@ -26,11 +26,13 @@ cap.set(3,800)
 
 cap.set(4,800)
 #cap.set(5, 1080)
-cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-
-time.sleep(1)
-
-cap.set(15, -8.0)
+#cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
+# =============================================================================
+# 
+# time.sleep(1)
+# 
+# cap.set(15, -8.0)
+# =============================================================================
 
 # =============================================================================
 # currentWB = cap.get(cv2.CAP_PROP_WHITE_BALANCE_BLUE_U)
@@ -45,25 +47,32 @@ while True:
     
     ret, img = cap.read()
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret,thresh = cv2.threshold(imgray,90,255,0)
+    ret,thresh = cv2.threshold(imgray,145,255,0)
     thresh = cv2.dilate(thresh, None, iterations=1)
     thresh = cv2.erode(thresh, None, iterations=1)
     img2, imgContours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-    cv2.drawContours(img, imgContours, -1, (0,255,0), 3)
+    largest_areas = sorted(imgContours, key=cv2.contourArea)
+    cv2.drawContours(img, largest_areas[-10:-1], 0, (255,0,0), 2)
+    
+    #Trying to remove tiny contours
+    #mask = np.ones(img.shape[:2], dtype="uint8") * 255
+    
+    #cv2.drawContours(img, imgContours, -1, (0,255,0), 3)
 
     
     #if count == 0 and (cv2.waitKey(1) & 0xFF == ord('r')):
     if count == 0:
         savedImage = img2
         savedImageColor = img
-        cv2.drawContours(savedImageColor, imgContours, 0, (0,255,0), 3) #0 argument draws it at outer contour
+        #cv2.drawContours(savedImageColor, imgContours, 0, (0,255,0), 3) #0 argument draws it at outer contour
         
         # draws a circle at the centroid of each child contour
         for i in range(0,len(imgContours)):
             
             #Moment and centroid stuff
             cnt = imgContours[i] #parameter refers to which contour to use
-            if cv2.contourArea(cnt) < 50:
+            if cv2.contourArea(cnt) < 100:
+               # cv2.drawContours(mask, [i], -1, 0, -1)
                 continue
             
             M = cv2.moments(cnt)
@@ -95,6 +104,7 @@ while True:
         #if hierarchy[0][0][2] == -1:
         while hierarchy[0][parent][2] == -1:
             cv2.drawContours(savedImageColor, imgContours, hierarchy[0][parent][2],(0,255,0),3) #Only one contour
+          #  cv2.drawContours(savedImageColor, hierarchy[0][parent][2], 0, (255,0,0), 3)
             if hierarchy[0][parent][0] > -1:
                 #This goes to another contour at the same level if there is one
                 parent = hierarchy[0][parent][0]
@@ -108,6 +118,7 @@ while True:
             #currentContour = 0   ################ Might not be able to assume initial parent is contour 0!!!
             contourTotal = 1
             childorNext = hierarchy[0][parent][2]
+            maxArea = 0
             #This loop draws all the direct children of the parent contour a different color from the parent
             while True:
                 #hierarchy[0][child]
@@ -127,6 +138,7 @@ while True:
                         cy = int(M['m01']/M['m00'])
                         centroidPoint = (cx, cy)
                 cv2.drawContours(savedImageColor, imgContours, childorNext, (255,0,0), 3)
+                #qqqcv2.drawContours(savedImageColor, childorNext, childorNext, (255,0,0), 3)
                 #print("current contour", hierarchy[0][childorNext])
                 childorNext = hierarchy[0][childorNext][0]
 
@@ -141,7 +153,7 @@ while True:
             
             if contourTotal == 2:
                 #Prints Robot 2 at centroid position of the body
-                print("centroid point", centroidPoint)
+                print("centroid point of robot 1", centroidPoint)
                 cv2.putText(savedImageColor, "Robot 1",
         	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
                 1, (0, 150, 150), 2)
@@ -157,12 +169,12 @@ while True:
                 #respect to the center of the body
                 netPositionX = Frontcx - cx
                 netPositionY = Frontcy - cy
-                netPosition = (netPositionX, netPositionY)
-                print("net position", netPosition)
+                netPosition1 = (netPositionX, netPositionY)
+                print("net position of robot 1", netPosition1)
             
             elif contourTotal == 3:
                 #Prints Robot 2 at centroid position of the body
-                print("centroid point", centroidPoint)
+                print("centroid point of robot 2", centroidPoint)
                 cv2.putText(savedImageColor, "Robot 2",
         	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
                 1, (0, 150, 150), 2)
@@ -178,8 +190,8 @@ while True:
                 #respect to the center of the body
                 netPositionX = Frontcx - cx
                 netPositionY = Frontcy - cy
-                netPosition = (netPositionX, netPositionY)
-                print("net position", netPosition)
+                netPosition2 = (netPositionX, netPositionY)
+                print("net position of robot 2", netPosition2)
                 #if x is pos and y is pos, then front is southeast from body cen
                 #if x is pos and y is neg, then front is northeast from body cen
                 #if x is neg and y is pos, then front is southwest from body cen
@@ -188,7 +200,7 @@ while True:
                 #Send centroid point of body and relative direction to ros
             elif contourTotal == 4:
                 #Prints Robot 2 at centroid position of the body
-                print("centroid point", centroidPoint)
+                print("centroid point of robot 3", centroidPoint)
                 cv2.putText(savedImageColor, "Robot 3",
         	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
                 1, (0, 150, 150), 2)
@@ -204,12 +216,12 @@ while True:
                 #respect to the center of the body
                 netPositionX = Frontcx - cx
                 netPositionY = Frontcy - cy
-                netPosition = (netPositionX, netPositionY)
-                print("net position", netPosition)
+                netPosition3 = (netPositionX, netPositionY)
+                print("net position of robot 3", netPosition3)
                 
             elif contourTotal == 5:
                 #Prints Robot 2 at centroid position of the body
-                print("centroid point", centroidPoint)
+                print("centroid point of robot 4", centroidPoint)
                 cv2.putText(savedImageColor, "Robot 4",
         	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
                 1, (0, 150, 150), 2)
@@ -225,8 +237,8 @@ while True:
                 #respect to the center of the body
                 netPositionX = Frontcx - cx
                 netPositionY = Frontcy - cy
-                netPosition = (netPositionX, netPositionY)
-                print("net position", netPosition)
+                netPosition4 = (netPositionX, netPositionY)
+                print("net position of robot 4", netPosition4)
                 
             # Goes to the next parent in the same level (should be another robot body)
             if hierarchy[0][parent][0] > -1:
