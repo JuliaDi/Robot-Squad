@@ -25,6 +25,10 @@ cap = cv2.VideoCapture(1)
 cap.set(3,800)
 
 cap.set(4,800)
+
+
+
+
 #cap.set(5, 1080)
 #cap.set(cv2.CAP_PROP_AUTOFOCUS, 0)
 # =============================================================================
@@ -43,16 +47,29 @@ cap.set(4,800)
     
 count = 0
 
+initial1 = False
+initial2 = False
+initial3 = False
+initial4 = False
+
 while True:
     
     ret, img = cap.read()
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret,thresh = cv2.threshold(imgray,145,255,0)
+    ret,thresh = cv2.threshold(imgray,160,255,0)
     thresh = cv2.dilate(thresh, None, iterations=1)
     thresh = cv2.erode(thresh, None, iterations=1)
     img2, imgContours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     largest_areas = sorted(imgContours, key=cv2.contourArea)
-    cv2.drawContours(img, largest_areas[-10:-1], 0, (255,0,0), 2)
+    
+    #top left point of image
+    origin = (0,0)
+    cv2.circle(img, origin, 25, (255,255,255), -1)
+    #cv2.drawContours(img, largest_areas[-10:-1], 0, (255,0,0), 2)
+    
+    #bottom right point of image
+    end = (800,600)
+    cv2.circle(img, end, 25, (255,255,255), -1)
     
     #Trying to remove tiny contours
     #mask = np.ones(img.shape[:2], dtype="uint8") * 255
@@ -171,6 +188,17 @@ while True:
                 netPositionY = Frontcy - cy
                 netPosition1 = (netPositionX, netPositionY)
                 print("net position of robot 1", netPosition1)
+                
+                if initial1 == False:
+                    with open("Initial_Output.txt", "a") as text_file:
+                        text_file.write("Centroid of robot 1: x position is %d, y position is %d\n" % (cx, cy))
+                        text_file.write("Net position of robot 1: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+                    initial1 = True
+                    
+                with open("Output.txt", "w") as text_file:
+                    text_file.write("Centroid of robot 1: x position is %d, y position is %d" % (cx, cy))
+                    text_file.write("Net position of robot 1: x position is %d, y position is %d" % (netPositionX, netPositionY))
+                    
             
             elif contourTotal == 3:
                 #Prints Robot 2 at centroid position of the body
@@ -197,6 +225,16 @@ while True:
                 #if x is neg and y is pos, then front is southwest from body cen
                 #if x is neg and y is neg, then front is northwest from body cen
                 
+                if initial2 == False:
+                    with open("Initial_Output.txt", "a") as text_file:
+                        text_file.write("Centroid of robot 2: x position is %d, y position is %d\n" % (cx, cy))
+                        text_file.write("Net position of robot 2: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+                    initial2 = True
+                
+                with open("Output.txt", "w") as text_file:
+                    text_file.write("Centroid of robot 2: x position is %d, y position is %d" % (cx, cy))
+                    text_file.write("Net position of robot 2: x position is %d, y position is %d" % (netPositionX, netPositionY))
+                    
                 #Send centroid point of body and relative direction to ros
             elif contourTotal == 4:
                 #Prints Robot 2 at centroid position of the body
@@ -219,6 +257,17 @@ while True:
                 netPosition3 = (netPositionX, netPositionY)
                 print("net position of robot 3", netPosition3)
                 
+                if initial3 == False:
+                    with open("Initial_Output.txt", "a") as text_file:
+                        text_file.write("Centroid of robot 3: x position is %d, y position is %d\n" % (cx, cy))
+                        text_file.write("Net position of robot 3: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+                    initial3 = True
+                
+                with open("Output.txt", "w") as text_file:
+                    text_file.write("Centroid of robot 3: x position is %d, y position is %d\n" % (cx, cy))
+                    text_file.write("Net position of robot 3: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+                    
+                
             elif contourTotal == 5:
                 #Prints Robot 2 at centroid position of the body
                 print("centroid point of robot 4", centroidPoint)
@@ -239,6 +288,17 @@ while True:
                 netPositionY = Frontcy - cy
                 netPosition4 = (netPositionX, netPositionY)
                 print("net position of robot 4", netPosition4)
+                
+                if initial4 == False:
+                    with open("Initial_Output.txt", "a") as text_file:
+                        text_file.write("Centroid of robot 4: x position is %d, y position is %d\n" % (cx, cy))
+                        text_file.write("Net position of robot 4: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+                    initial4 = True
+                
+                with open("Output.txt", "w") as text_file:
+                    text_file.write("Centroid of robot 4: x position is %d, y position is %d" % (cx, cy))
+                    text_file.write("Net position of robot 4: x position is %d, y position is %d" % (netPositionX, netPositionY))
+                    
                 
             # Goes to the next parent in the same level (should be another robot body)
             if hierarchy[0][parent][0] > -1:
@@ -365,14 +425,14 @@ while True:
 #             cv2.rectangle(img,(x,y),(x+w,y+h),(255,255,0),3)
 # =============================================================================
     if count == 1:
-        cv2.imshow('saved image', savedImage)
+   #     cv2.imshow('saved image', savedImage)
         cv2.imshow('saved image with color', savedImageColor)
 
     count = 0
 
     cv2.imshow('img', img)
     cv2.imshow('test', thresh)
-    cv2.imshow('img2', img2)
+   # cv2.imshow('img2', img2)
     
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
