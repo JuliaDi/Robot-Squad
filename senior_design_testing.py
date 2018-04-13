@@ -9,11 +9,12 @@ from imutils import perspective
 from imutils import contours
 import imutils
 import cv2
-import urllib.request
+#import urllib.request
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import time
+import math
 #import imutils
 
 def midpoint(ptA, ptB):
@@ -56,7 +57,7 @@ while True:
     
     ret, img = cap.read()
     imgray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ret,thresh = cv2.threshold(imgray,160,255,0)
+    ret,thresh = cv2.threshold(imgray,200,255,0)
     thresh = cv2.dilate(thresh, None, iterations=1)
     thresh = cv2.erode(thresh, None, iterations=1)
     img2, imgContours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
@@ -188,6 +189,17 @@ while True:
                 netPositionY = Frontcy - cy
                 netPosition1 = (netPositionX, netPositionY)
                 print("net position of robot 1", netPosition1)
+                
+                ############################################
+                #find and print angle
+                #There might need to be if statements based on the x and y values
+                #to determine if the x or y term is the opposite side of the angle
+                #Not sure how to do this yet, maybe compare lengths of each to hypotenuse
+                #also need if statement for fringe case where front is exactly due
+                #north, east, west, or south since denominator could have no change which would divide by 0
+                #will then need to get angle based on the origin (due east)
+                #math.degrees(math.atan(netPositionX/netPositionY))
+                ############################################
                 
                 if initial1 == False:
                     with open("Initial_Output.txt", "a") as text_file:
