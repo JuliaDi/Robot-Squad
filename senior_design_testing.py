@@ -21,32 +21,32 @@ def midpoint(ptA, ptB):
 	return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
 def get_angle(netPositionX, netPositionY):
-    if netPositionX > 0 and netPositionY > 0:
-        if netPositionX >= netPositionY:
-            angle1 = math.degrees(math.atan(netPositionY/netPositionX))
-        elif netPositionX < netPositionY:
-            angle1 = math.degrees(math.atan(netPositionX/netPositionY))
-    elif netPositionX < 0 and netPositionY > 0:
-        if netPositionX >= netPositionY:
-            angle1 = math.degrees(math.atan(netPositionY/netPositionX)) + 90
-        elif netPositionX < netPositionY:
-            angle1 = math.degrees(math.atan(netPositionX/netPositionY)) + 90
+    if netPositionX > 0 and netPositionY < 0:
+        if abs(netPositionX) >= abs(netPositionY):
+            angle1 = math.degrees(math.atan(abs(netPositionY)/abs(netPositionX)))
+        elif abs(netPositionX) < abs(netPositionY):
+            angle1 = 90 - math.degrees(math.atan(abs(netPositionX)/abs(netPositionY)))
     elif netPositionX < 0 and netPositionY < 0:
+        if abs(netPositionX) >= abs(netPositionY):
+            angle1 = 180 - math.degrees(math.atan(abs(netPositionY)/abs(netPositionX)))
+        elif abs(netPositionX) < abs(netPositionY):
+            angle1 = math.degrees(math.atan(abs(netPositionX)/abs(netPositionY))) + 90
+    elif netPositionX < 0 and netPositionY > 0:
+        if abs(netPositionX) >= netPositionY:
+            angle1 = math.degrees(math.atan(netPositionY/abs(netPositionX))) + 180
+        elif abs(netPositionX) < netPositionY:
+            angle1 = 270 - math.degrees(math.atan(abs(netPositionX)/netPositionY))
+    elif netPositionX > 0 and netPositionY > 0:
         if netPositionX >= netPositionY:
-            angle1 = math.degrees(math.atan(netPositionY/netPositionX)) + 180
-        elif netPositionX < netPositionY:
-            angle1 = math.degrees(math.atan(netPositionX/netPositionY)) + 180
-    elif netPositionX > 0 and netPositionY < 0:
-        if netPositionX >= netPositionY:
-            angle1 = math.degrees(math.atan(netPositionY/netPositionX)) + 270
+            angle1 = 360 - math.degrees(math.atan(netPositionY/netPositionX))
             if angle1 == 360:
                 angle1 = 0
         elif netPositionX < netPositionY:
             angle1 = math.degrees(math.atan(netPositionX/netPositionY)) + 270
     elif netPositionX == 0:
-        if netPositionY > 0:
+        if netPositionY < 0:
             angle1 = 90
-        elif netPositionY < 0:
+        elif netPositionY > 0:
             angle1 = 270
     elif netPositionY == 0:
         if netPositionX > 0:
@@ -240,8 +240,16 @@ while True:
                 
                 angle1 = get_angle(netPositionX, netPositionY)
                 print("angle of robot 1 is", angle1)
-                cv2.putText(savedImageColor, angle1, FrontCentroidPoint, 
-                        cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 150), 2)
+                if initial1 == False:
+                     with open("Initial_Output.txt", "a") as text_file:
+                         text_file.write("Centroid of robot 1: x position is %d, y position is %d\n" % (cx, cy))
+                         text_file.write("Net position of robot 1: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+                         text_file.write("Angle of robot 1: %d\n" % angle1)
+                     initial1 = True
+# =============================================================================
+#                 cv2.putText(savedImageColor, angle1, FrontCentroidPoint, 
+#                         cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 150), 2)
+# =============================================================================
                 #First attempt at angle
 # =============================================================================
 #                 if netPositionX > 0 and netPositionY > 0:
@@ -323,6 +331,12 @@ while True:
                 
                 angle2 = get_angle(netPositionX, netPositionY)
                 print("angle of robot 2 is", angle2)
+                if initial2 == False:
+                     with open("Initial_Output.txt", "a") as text_file:
+                         text_file.write("Centroid of robot 2: x position is %d, y position is %d\n" % (cx, cy))
+                         text_file.write("Net position of robot 2: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+                         text_file.write("Angle of robot 2: %d\n" % angle2)
+                     initial2 = True
 # =============================================================================
 #                 cv2.putText(savedImageColor, angle2,
 #         	       FrontCentroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
@@ -401,6 +415,12 @@ while True:
                 
                 angle3 = get_angle(netPositionX, netPositionY)
                 print("angle of robot 3 is", angle3)
+                if initial3 == False:
+                     with open("Initial_Output.txt", "a") as text_file:
+                         text_file.write("Centroid of robot 3: x position is %d, y position is %d\n" % (cx, cy))
+                         text_file.write("Net position of robot 3: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+                         text_file.write("Angle of robot 3: %d\n" % angle3)
+                     initial3 = True
 # =============================================================================
 #                 cv2.putText(savedImageColor, angle3, FrontCentroidPoint, 
 #                         cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 150), 2)
@@ -478,6 +498,12 @@ while True:
                 
                 angle4 = get_angle(netPositionX, netPositionY)
                 print("angle of robot 4 is", angle4)
+                if initial4 == False:
+                     with open("Initial_Output.txt", "a") as text_file:
+                         text_file.write("Centroid of robot 4: x position is %d, y position is %d\n" % (cx, cy))
+                         text_file.write("Net position of robot 4: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+                         text_file.write("Angle of robot 4: %d\n" % angle4)
+                     initial4 = True
 # =============================================================================
 #                 cv2.putText(savedImageColor, angle4, FrontCentroidPoint, 
 #                         cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 150), 2)
