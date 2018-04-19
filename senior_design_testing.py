@@ -20,6 +20,41 @@ import math
 def midpoint(ptA, ptB):
 	return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
+def get_angle(netPositionX, netPositionY):
+    if netPositionX > 0 and netPositionY > 0:
+        if netPositionX >= netPositionY:
+            angle1 = math.degrees(math.atan(netPositionY/netPositionX))
+        elif netPositionX < netPositionY:
+            angle1 = math.degrees(math.atan(netPositionX/netPositionY))
+    elif netPositionX < 0 and netPositionY > 0:
+        if netPositionX >= netPositionY:
+            angle1 = math.degrees(math.atan(netPositionY/netPositionX)) + 90
+        elif netPositionX < netPositionY:
+            angle1 = math.degrees(math.atan(netPositionX/netPositionY)) + 90
+    elif netPositionX < 0 and netPositionY < 0:
+        if netPositionX >= netPositionY:
+            angle1 = math.degrees(math.atan(netPositionY/netPositionX)) + 180
+        elif netPositionX < netPositionY:
+            angle1 = math.degrees(math.atan(netPositionX/netPositionY)) + 180
+    elif netPositionX > 0 and netPositionY < 0:
+        if netPositionX >= netPositionY:
+            angle1 = math.degrees(math.atan(netPositionY/netPositionX)) + 270
+            if angle1 == 360:
+                angle1 = 0
+        elif netPositionX < netPositionY:
+            angle1 = math.degrees(math.atan(netPositionX/netPositionY)) + 270
+    elif netPositionX == 0:
+        if netPositionY > 0:
+            angle1 = 90
+        elif netPositionY < 0:
+            angle1 = 270
+    elif netPositionY == 0:
+        if netPositionX > 0:
+            angle1 = 0
+        elif netPositionX < 0:
+            angle1 = 180
+    
+    return angle1
 
 
 cap = cv2.VideoCapture(1)
@@ -173,16 +208,18 @@ while True:
                 #Prints Robot 2 at centroid position of the body
                 print("centroid point of robot 1", centroidPoint)
                 cv2.putText(savedImageColor, "Robot 1",
-        	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
-                1, (0, 150, 150), 2)
+        	       (cx-50, cy-50), cv2.FONT_HERSHEY_SIMPLEX,
+                1, (0, 0, 255), 2)
                 #Finds centroid position of the front contour, which will be
                 #used to find front of the robot
                 FrontM = cv2.moments(imgContours[frontContour])
                 Frontcx = int(FrontM['m10']/FrontM['m00'])
                 Frontcy = int(FrontM['m01']/FrontM['m00'])
                 FrontCentroidPoint = (Frontcx, Frontcy)
-                cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
+# =============================================================================
+#                 cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
+#                             cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
+# =============================================================================
                 #finding the relative coordinates of the front contour with
                 #respect to the center of the body
                 netPositionX = Frontcx - cx
@@ -201,31 +238,77 @@ while True:
                 #math.degrees(math.atan(netPositionX/netPositionY))
                 ############################################
                 
-                if initial1 == False:
-                    with open("Initial_Output.txt", "a") as text_file:
-                        text_file.write("Centroid of robot 1: x position is %d, y position is %d\n" % (cx, cy))
-                        text_file.write("Net position of robot 1: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
-                    initial1 = True
+                angle1 = get_angle(netPositionX, netPositionY)
+                print("angle of robot 1 is", angle1)
+                cv2.putText(savedImageColor, angle1, FrontCentroidPoint, 
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 150), 2)
+                #First attempt at angle
+# =============================================================================
+#                 if netPositionX > 0 and netPositionY > 0:
+#                     if netPositionX >= netPositionY:
+#                         angle1 = math.degrees(math.atan(netPositionY/netPositionX))
+#                     elif netPositionX < netPositionY:
+#                         angle1 = math.degrees(math.atan(netPositionX/netPositionY))
+#                 elif netPositionX < 0 and netPositionY > 0:
+#                     if netPositionX >= netPositionY:
+#                         angle1 = math.degrees(math.atan(netPositionY/netPositionX)) + 90
+#                     elif netPositionX < netPositionY:
+#                         angle1 = math.degrees(math.atan(netPositionX/netPositionY)) + 90
+#                 elif netPositionX < 0 and netPositionY < 0:
+#                     if netPositionX >= netPositionY:
+#                         angle1 = math.degrees(math.atan(netPositionY/netPositionX)) + 180
+#                     elif netPositionX < netPositionY:
+#                         angle1 = math.degrees(math.atan(netPositionX/netPositionY)) + 180
+#                 elif netPositionX > 0 and netPositionY < 0:
+#                     if netPositionX >= netPositionY:
+#                         angle1 = math.degrees(math.atan(netPositionY/netPositionX)) + 270
+#                         if angle1 == 360:
+#                             angle1 = 0
+#                     elif netPositionX < netPositionY:
+#                         angle1 = math.degrees(math.atan(netPositionX/netPositionY)) + 270
+#                 elif netPositionX == 0:
+#                     if netPositionY > 0:
+#                         angle1 = 90
+#                     elif netPositionY < 0:
+#                         angle1 = 270
+#                 elif netPositionY == 0:
+#                     if netPositionX > 0:
+#                         angle1 = 0
+#                     elif netPositionX < 0:
+#                         angle1 = 180
+# =============================================================================
                     
-                with open("Output.txt", "w") as text_file:
-                    text_file.write("Centroid of robot 1: x position is %d, y position is %d" % (cx, cy))
-                    text_file.write("Net position of robot 1: x position is %d, y position is %d" % (netPositionX, netPositionY))
+                        
+                        
+# =============================================================================
+#                 if initial1 == False:
+#                     with open("Initial_Output.txt", "a") as text_file:
+#                         text_file.write("Centroid of robot 1: x position is %d, y position is %d\n" % (cx, cy))
+#                         text_file.write("Net position of robot 1: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+#                     initial1 = True
+#                     
+#                 with open("Output.txt", "w") as text_file:
+#                     text_file.write("Centroid of robot 1: x position is %d, y position is %d" % (cx, cy))
+#                     text_file.write("Net position of robot 1: x position is %d, y position is %d" % (netPositionX, netPositionY))
+# =============================================================================
                     
             
             elif contourTotal == 3:
                 #Prints Robot 2 at centroid position of the body
                 print("centroid point of robot 2", centroidPoint)
                 cv2.putText(savedImageColor, "Robot 2",
-        	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
-                1, (0, 150, 150), 2)
+        	       (cx-50, cy-50), cv2.FONT_HERSHEY_SIMPLEX,
+                1, (0, 0, 255), 2)
                 #Finds centroid position of the front contour, which will be
                 #used to find front of the robot
                 FrontM = cv2.moments(imgContours[frontContour])
                 Frontcx = int(FrontM['m10']/FrontM['m00'])
                 Frontcy = int(FrontM['m01']/FrontM['m00'])
                 FrontCentroidPoint = (Frontcx, Frontcy)
-                cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
+# =============================================================================
+#                 cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
+#                             cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
+# =============================================================================
                 #finding the relative coordinates of the front contour with
                 #respect to the center of the body
                 netPositionX = Frontcx - cx
@@ -237,31 +320,78 @@ while True:
                 #if x is neg and y is pos, then front is southwest from body cen
                 #if x is neg and y is neg, then front is northwest from body cen
                 
-                if initial2 == False:
-                    with open("Initial_Output.txt", "a") as text_file:
-                        text_file.write("Centroid of robot 2: x position is %d, y position is %d\n" % (cx, cy))
-                        text_file.write("Net position of robot 2: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
-                    initial2 = True
                 
-                with open("Output.txt", "w") as text_file:
-                    text_file.write("Centroid of robot 2: x position is %d, y position is %d" % (cx, cy))
-                    text_file.write("Net position of robot 2: x position is %d, y position is %d" % (netPositionX, netPositionY))
+                angle2 = get_angle(netPositionX, netPositionY)
+                print("angle of robot 2 is", angle2)
+# =============================================================================
+#                 cv2.putText(savedImageColor, angle2,
+#         	       FrontCentroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
+#                 1, (150, 150, 150), 2)
+# =============================================================================
+# =============================================================================
+#                 if netPositionX > 0 and netPositionY > 0:
+#                     if netPositionX >= netPositionY:
+#                         angle2 = math.degrees(math.atan(netPositionY/netPositionX))
+#                     elif netPositionX < netPositionY:
+#                         angle2 = math.degrees(math.atan(netPositionX/netPositionY))
+#                 elif netPositionX < 0 and netPositionY > 0:
+#                     if netPositionX >= netPositionY:
+#                         angle2 = math.degrees(math.atan(netPositionY/netPositionX)) + 90
+#                     elif netPositionX < netPositionY:
+#                         angle2 = math.degrees(math.atan(netPositionX/netPositionY)) + 90
+#                 elif netPositionX < 0 and netPositionY < 0:
+#                     if netPositionX >= netPositionY:
+#                         angle2 = math.degrees(math.atan(netPositionY/netPositionX)) + 180
+#                     elif netPositionX < netPositionY:
+#                         angle2 = math.degrees(math.atan(netPositionX/netPositionY)) + 180
+#                 elif netPositionX > 0 and netPositionY < 0:
+#                     if netPositionX >= netPositionY:
+#                         angle2 = math.degrees(math.atan(netPositionY/netPositionX)) + 270
+#                         if angle2 == 360:
+#                             angle2 = 0
+#                     elif netPositionX < netPositionY:
+#                         angle2 = math.degrees(math.atan(netPositionX/netPositionY)) + 270
+#                 elif netPositionX == 0:
+#                     if netPositionY > 0:
+#                         angle2 = 90
+#                     elif netPositionY < 0:
+#                         angle2 = 270
+#                 elif netPositionY == 0:
+#                     if netPositionX > 0:
+#                         angle2 = 0
+#                     elif netPositionX < 0:
+#                         angle2 = 180
+# =============================================================================
+                
+# =============================================================================
+#                 if initial2 == False:
+#                     with open("Initial_Output.txt", "a") as text_file:
+#                         text_file.write("Centroid of robot 2: x position is %d, y position is %d\n" % (cx, cy))
+#                         text_file.write("Net position of robot 2: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+#                     initial2 = True
+#                 
+#                 with open("Output.txt", "w") as text_file:
+#                     text_file.write("Centroid of robot 2: x position is %d, y position is %d" % (cx, cy))
+#                     text_file.write("Net position of robot 2: x position is %d, y position is %d" % (netPositionX, netPositionY))
+# =============================================================================
                     
                 #Send centroid point of body and relative direction to ros
             elif contourTotal == 4:
                 #Prints Robot 2 at centroid position of the body
                 print("centroid point of robot 3", centroidPoint)
                 cv2.putText(savedImageColor, "Robot 3",
-        	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
-                1, (0, 150, 150), 2)
+        	       (cx-50, cy-50), cv2.FONT_HERSHEY_SIMPLEX,
+                1, (0, 0, 255), 2)
                 #Finds centroid position of the front contour, which will be
                 #used to find front of the robot
                 FrontM = cv2.moments(imgContours[frontContour])
                 Frontcx = int(FrontM['m10']/FrontM['m00'])
                 Frontcy = int(FrontM['m01']/FrontM['m00'])
                 FrontCentroidPoint = (Frontcx, Frontcy)
-                cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
+# =============================================================================
+#                 cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
+#                             cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
+# =============================================================================
                 #finding the relative coordinates of the front contour with
                 #respect to the center of the body
                 netPositionX = Frontcx - cx
@@ -269,31 +399,76 @@ while True:
                 netPosition3 = (netPositionX, netPositionY)
                 print("net position of robot 3", netPosition3)
                 
-                if initial3 == False:
-                    with open("Initial_Output.txt", "a") as text_file:
-                        text_file.write("Centroid of robot 3: x position is %d, y position is %d\n" % (cx, cy))
-                        text_file.write("Net position of robot 3: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
-                    initial3 = True
+                angle3 = get_angle(netPositionX, netPositionY)
+                print("angle of robot 3 is", angle3)
+# =============================================================================
+#                 cv2.putText(savedImageColor, angle3, FrontCentroidPoint, 
+#                         cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 150), 2)
+# =============================================================================
+# =============================================================================
+#                 if netPositionX > 0 and netPositionY > 0:
+#                     if netPositionX >= netPositionY:
+#                         angle3 = math.degrees(math.atan(netPositionY/netPositionX))
+#                     elif netPositionX < netPositionY:
+#                         angle3 = math.degrees(math.atan(netPositionX/netPositionY))
+#                 elif netPositionX < 0 and netPositionY > 0:
+#                     if netPositionX >= netPositionY:
+#                         angle3 = math.degrees(math.atan(netPositionY/netPositionX)) + 90
+#                     elif netPositionX < netPositionY:
+#                         angle3 = math.degrees(math.atan(netPositionX/netPositionY)) + 90
+#                 elif netPositionX < 0 and netPositionY < 0:
+#                     if netPositionX >= netPositionY:
+#                         angle3 = math.degrees(math.atan(netPositionY/netPositionX)) + 180
+#                     elif netPositionX < netPositionY:
+#                         angle3 = math.degrees(math.atan(netPositionX/netPositionY)) + 180
+#                 elif netPositionX > 0 and netPositionY < 0:
+#                     if netPositionX >= netPositionY:
+#                         angle3 = math.degrees(math.atan(netPositionY/netPositionX)) + 270
+#                         if angle3 == 360:
+#                             angle3 = 0
+#                     elif netPositionX < netPositionY:
+#                         angle3 = math.degrees(math.atan(netPositionX/netPositionY)) + 270
+#                 elif netPositionX == 0:
+#                     if netPositionY > 0:
+#                         angle3 = 90
+#                     elif netPositionY < 0:
+#                         angle3 = 270
+#                 elif netPositionY == 0:
+#                     if netPositionX > 0:
+#                         angle3 = 0
+#                     elif netPositionX < 0:
+#                         angle3 = 180
+# =============================================================================
                 
-                with open("Output.txt", "w") as text_file:
-                    text_file.write("Centroid of robot 3: x position is %d, y position is %d\n" % (cx, cy))
-                    text_file.write("Net position of robot 3: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+# =============================================================================
+#                 if initial3 == False:
+#                     with open("Initial_Output.txt", "a") as text_file:
+#                         text_file.write("Centroid of robot 3: x position is %d, y position is %d\n" % (cx, cy))
+#                         text_file.write("Net position of robot 3: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+#                     initial3 = True
+#                 
+#                 with open("Output.txt", "w") as text_file:
+#                     text_file.write("Centroid of robot 3: x position is %d, y position is %d\n" % (cx, cy))
+#                     text_file.write("Net position of robot 3: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+# =============================================================================
                     
                 
             elif contourTotal == 5:
                 #Prints Robot 2 at centroid position of the body
                 print("centroid point of robot 4", centroidPoint)
                 cv2.putText(savedImageColor, "Robot 4",
-        	       centroidPoint, cv2.FONT_HERSHEY_SIMPLEX,
-                1, (0, 150, 150), 2)
+        	       (cx-50, cy-50), cv2.FONT_HERSHEY_SIMPLEX,
+                1, (0, 0, 255), 2)
                 #Finds centroid position of the front contour, which will be
                 #used to find front of the robot
                 FrontM = cv2.moments(imgContours[frontContour])
                 Frontcx = int(FrontM['m10']/FrontM['m00'])
                 Frontcy = int(FrontM['m01']/FrontM['m00'])
                 FrontCentroidPoint = (Frontcx, Frontcy)
-                cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
+# =============================================================================
+#                 cv2.putText(savedImageColor, "Front", FrontCentroidPoint, 
+#                             cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 0), 2)
+# =============================================================================
                 #finding the relative coordinates of the front contour with
                 #respect to the center of the body
                 netPositionX = Frontcx - cx
@@ -301,15 +476,58 @@ while True:
                 netPosition4 = (netPositionX, netPositionY)
                 print("net position of robot 4", netPosition4)
                 
-                if initial4 == False:
-                    with open("Initial_Output.txt", "a") as text_file:
-                        text_file.write("Centroid of robot 4: x position is %d, y position is %d\n" % (cx, cy))
-                        text_file.write("Net position of robot 4: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
-                    initial4 = True
+                angle4 = get_angle(netPositionX, netPositionY)
+                print("angle of robot 4 is", angle4)
+# =============================================================================
+#                 cv2.putText(savedImageColor, angle4, FrontCentroidPoint, 
+#                         cv2.FONT_HERSHEY_SIMPLEX, 1, (150, 150, 150), 2)
+# =============================================================================
+# =============================================================================
+#                 if netPositionX > 0 and netPositionY > 0:
+#                     if netPositionX >= netPositionY:
+#                         angle4 = math.degrees(math.atan(netPositionY/netPositionX))
+#                     elif netPositionX < netPositionY:
+#                         angle4 = math.degrees(math.atan(netPositionX/netPositionY))
+#                 elif netPositionX < 0 and netPositionY > 0:
+#                     if netPositionX >= netPositionY:
+#                         angle4 = math.degrees(math.atan(netPositionY/netPositionX)) + 90
+#                     elif netPositionX < netPositionY:
+#                         angle4 = math.degrees(math.atan(netPositionX/netPositionY)) + 90
+#                 elif netPositionX < 0 and netPositionY < 0:
+#                     if netPositionX >= netPositionY:
+#                         angle4 = math.degrees(math.atan(netPositionY/netPositionX)) + 180
+#                     elif netPositionX < netPositionY:
+#                         angle4 = math.degrees(math.atan(netPositionX/netPositionY)) + 180
+#                 elif netPositionX > 0 and netPositionY < 0:
+#                     if netPositionX >= netPositionY:
+#                         angle4 = math.degrees(math.atan(netPositionY/netPositionX)) + 270
+#                         if angle4 == 360:
+#                             angle4 = 0
+#                     elif netPositionX < netPositionY:
+#                         angle4 = math.degrees(math.atan(netPositionX/netPositionY)) + 270
+#                 elif netPositionX == 0:
+#                     if netPositionY > 0:
+#                         angle4 = 90
+#                     elif netPositionY < 0:
+#                         angle4 = 270
+#                 elif netPositionY == 0:
+#                     if netPositionX > 0:
+#                         angle4 = 0
+#                     elif netPositionX < 0:
+#                         angle4 = 180
+# =============================================================================
                 
-                with open("Output.txt", "w") as text_file:
-                    text_file.write("Centroid of robot 4: x position is %d, y position is %d" % (cx, cy))
-                    text_file.write("Net position of robot 4: x position is %d, y position is %d" % (netPositionX, netPositionY))
+# =============================================================================
+#                 if initial4 == False:
+#                     with open("Initial_Output.txt", "a") as text_file:
+#                         text_file.write("Centroid of robot 4: x position is %d, y position is %d\n" % (cx, cy))
+#                         text_file.write("Net position of robot 4: x position is %d, y position is %d\n" % (netPositionX, netPositionY))
+#                     initial4 = True
+#                 
+#                 with open("Output.txt", "w") as text_file:
+#                     text_file.write("Centroid of robot 4: x position is %d, y position is %d" % (cx, cy))
+#                     text_file.write("Net position of robot 4: x position is %d, y position is %d" % (netPositionX, netPositionY))
+# =============================================================================
                     
                 
             # Goes to the next parent in the same level (should be another robot body)
@@ -322,90 +540,92 @@ while True:
             contourTotal = 1
        
         
-        #Code for size of objects lines 125-209
-        cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        cnts = cnts[0] if imutils.is_cv2() else cnts[1]
-        
-        # sort the contours from left-to-right and initialize the
-        # 'pixels per metric' calibration variable
-        (cnts, _) = contours.sort_contours(cnts)
-        pixelsPerMetric = None
-        
-        # loop over the contours individually
-        for c in cnts:
-            # if the contour is not sufficiently large, ignore it
-            if cv2.contourArea(c) < 100:
-                continue
-            
-            # compute the rotated bounding box of the contour
-            #orig = transition
-            
-            #black and white image
-            #orig = thresh
-            #color image
-            orig = img
-            
-            box = cv2.minAreaRect(c)
-            box = cv2.cv.BoxPoints(box) if imutils.is_cv2() else cv2.boxPoints(box)
-            box = np.array(box, dtype="int")
-            
-            # order the points in the contour such that they appear
-            # in top-left, top-right, bottom-right, and bottom-left
-            # order, then draw the outline of the rotated bounding
-            # box
-            box = perspective.order_points(box)
-            cv2.drawContours(orig, [box.astype("int")], -1, (0, 255, 0), 2)
-        
-            # loop over the original points and draw them
-            for (x, y) in box:
-                cv2.circle(orig, (int(x), int(y)), 5, (0, 0, 255), -1)
-            
-            # unpack the ordered bounding box, then compute the midpoint
-            # between the top-left and top-right coordinates, followed by
-            # the midpoint between bottom-left and bottom-right coordinates
-            (tl, tr, br, bl) = box
-            (tltrX, tltrY) = midpoint(tl, tr)
-            (blbrX, blbrY) = midpoint(bl, br)
-            
-            # compute the midpoint between the top-left and top-right points,
-            # followed by the midpoint between the top-righ and bottom-right
-            (tlblX, tlblY) = midpoint(tl, bl)
-            (trbrX, trbrY) = midpoint(tr, br)
-            
-            # draw the midpoints on the image
-            cv2.circle(orig, (int(tltrX), int(tltrY)), 5, (255, 0, 0), -1)
-            cv2.circle(orig, (int(blbrX), int(blbrY)), 5, (255, 0, 0), -1)
-            cv2.circle(orig, (int(tlblX), int(tlblY)), 5, (255, 0, 0), -1)
-            cv2.circle(orig, (int(trbrX), int(trbrY)), 5, (255, 0, 0), -1)
-            
-            # draw lines between the midpoints
-            cv2.line(orig, (int(tltrX), int(tltrY)), (int(blbrX), int(blbrY)),
-            	(255, 0, 255), 2)
-            cv2.line(orig, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)),
-            	(255, 0, 255), 2)
-            
-            # compute the Euclidean distance between the midpoints
-            dA = dist.euclidean((tltrX, tltrY), (blbrX, blbrY))
-            dB = dist.euclidean((tlblX, tlblY), (trbrX, trbrY))
-            
-            # if the pixels per metric has not been initialized, then
-            # compute it as the ratio of pixels to supplied metric
-            # (in this case, inches)
-            if pixelsPerMetric is None:
-                pixelsPerMetric = dB / 2.25
-            
-            # compute the size of the object
-            dimA = dA / pixelsPerMetric
-            dimB = dB / pixelsPerMetric
-            
-            # draw the object sizes on the image
-            cv2.putText(orig, "{:.1f}in".format(dimA),
-            	(int(tltrX - 15), int(tltrY - 10)), cv2.FONT_HERSHEY_SIMPLEX,
-            	0.65, (255, 255, 255), 2)
-            cv2.putText(orig, "{:.1f}in".format(dimB),
-            	(int(trbrX + 10), int(trbrY)), cv2.FONT_HERSHEY_SIMPLEX,
-            	0.65, (255, 255, 255), 2)
-            cv2.imshow("Size Image", orig)
+# =============================================================================
+#         #Code for size of objects lines 125-209
+#         cnts = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+#         cnts = cnts[0] if imutils.is_cv2() else cnts[1]
+#         
+#         # sort the contours from left-to-right and initialize the
+#         # 'pixels per metric' calibration variable
+#         (cnts, _) = contours.sort_contours(cnts)
+#         pixelsPerMetric = None
+#         
+#         # loop over the contours individually
+#         for c in cnts:
+#             # if the contour is not sufficiently large, ignore it
+#             if cv2.contourArea(c) < 100:
+#                 continue
+#             
+#             # compute the rotated bounding box of the contour
+#             #orig = transition
+#             
+#             #black and white image
+#             #orig = thresh
+#             #color image
+#             orig = img
+#             
+#             box = cv2.minAreaRect(c)
+#             box = cv2.cv.BoxPoints(box) if imutils.is_cv2() else cv2.boxPoints(box)
+#             box = np.array(box, dtype="int")
+#             
+#             # order the points in the contour such that they appear
+#             # in top-left, top-right, bottom-right, and bottom-left
+#             # order, then draw the outline of the rotated bounding
+#             # box
+#             box = perspective.order_points(box)
+#             cv2.drawContours(orig, [box.astype("int")], -1, (0, 255, 0), 2)
+#         
+#             # loop over the original points and draw them
+#             for (x, y) in box:
+#                 cv2.circle(orig, (int(x), int(y)), 5, (0, 0, 255), -1)
+#             
+#             # unpack the ordered bounding box, then compute the midpoint
+#             # between the top-left and top-right coordinates, followed by
+#             # the midpoint between bottom-left and bottom-right coordinates
+#             (tl, tr, br, bl) = box
+#             (tltrX, tltrY) = midpoint(tl, tr)
+#             (blbrX, blbrY) = midpoint(bl, br)
+#             
+#             # compute the midpoint between the top-left and top-right points,
+#             # followed by the midpoint between the top-righ and bottom-right
+#             (tlblX, tlblY) = midpoint(tl, bl)
+#             (trbrX, trbrY) = midpoint(tr, br)
+#             
+#             # draw the midpoints on the image
+#             cv2.circle(orig, (int(tltrX), int(tltrY)), 5, (255, 0, 0), -1)
+#             cv2.circle(orig, (int(blbrX), int(blbrY)), 5, (255, 0, 0), -1)
+#             cv2.circle(orig, (int(tlblX), int(tlblY)), 5, (255, 0, 0), -1)
+#             cv2.circle(orig, (int(trbrX), int(trbrY)), 5, (255, 0, 0), -1)
+#             
+#             # draw lines between the midpoints
+#             cv2.line(orig, (int(tltrX), int(tltrY)), (int(blbrX), int(blbrY)),
+#             	(255, 0, 255), 2)
+#             cv2.line(orig, (int(tlblX), int(tlblY)), (int(trbrX), int(trbrY)),
+#             	(255, 0, 255), 2)
+#             
+#             # compute the Euclidean distance between the midpoints
+#             dA = dist.euclidean((tltrX, tltrY), (blbrX, blbrY))
+#             dB = dist.euclidean((tlblX, tlblY), (trbrX, trbrY))
+#             
+#             # if the pixels per metric has not been initialized, then
+#             # compute it as the ratio of pixels to supplied metric
+#             # (in this case, inches)
+#             if pixelsPerMetric is None:
+#                 pixelsPerMetric = dB / 2.25
+#             
+#             # compute the size of the object
+#             dimA = dA / pixelsPerMetric
+#             dimB = dB / pixelsPerMetric
+#             
+#             # draw the object sizes on the image
+#             cv2.putText(orig, "{:.1f}in".format(dimA),
+#             	(int(tltrX - 15), int(tltrY - 10)), cv2.FONT_HERSHEY_SIMPLEX,
+#             	0.65, (255, 255, 255), 2)
+#             cv2.putText(orig, "{:.1f}in".format(dimB),
+#             	(int(trbrX + 10), int(trbrY)), cv2.FONT_HERSHEY_SIMPLEX,
+#             	0.65, (255, 255, 255), 2)
+#             cv2.imshow("Size Image", orig)
+# =============================================================================
 # =============================================================================
 #         if contourTotal == 1:
 #             print("1 child contour")
