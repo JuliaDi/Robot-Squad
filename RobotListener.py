@@ -19,34 +19,34 @@ def setKiwiOutput( msg ):
 	
 	#set orientation pins
 	if pwm1 > 0:
-		pi.write(5, 1)
-		pi.write(6, 0)
-	elif pwm1 < 0:
-		pi.write(5, 0)
 		pi.write(6, 1)
-	else:
 		pi.write(5, 0)
+	elif pwm1 < 0:
 		pi.write(6, 0)
+		pi.write(5, 1)
+	else:
+		pi.write(6, 0)
+		pi.write(5, 0)
 
 	if pwm2 > 0:
-		pi.write(23, 1)
-		pi.write(24, 0)
-	elif pwm2 < 0:
-		pi.write(23, 0)
 		pi.write(24, 1)
-	else:
 		pi.write(23, 0)
+	elif pwm2 < 0:
 		pi.write(24, 0)
+		pi.write(23, 1)
+	else:
+		pi.write(24, 0)
+		pi.write(23, 0)
 
 	if pwm3 > 0:
-		pi.write(26, 1)
-		pi.write(20, 0)
-	elif pwm3 < 0:
-		pi.write(26, 0)
 		pi.write(20, 1)
-	else:
 		pi.write(26, 0)
+	elif pwm3 < 0:
 		pi.write(20, 0)
+		pi.write(26, 1)
+	else:
+		pi.write(20, 0)
+		pi.write(26, 0)
 
 	#set the duty cycle
 	pi.set_PWM_dutycycle(13, abs(pwm1))
@@ -62,12 +62,12 @@ def initPWM():
 	pi.set_PWM_frequency(18, 50000)
 	pi.set_PWM_frequency(19, 50000)
 	#configure the output pins for motor direction
-	pi.set_mode(5, pigpio.OUTPUT) # clockwise motor 1
-	pi.set_mode(6, pigpio.OUTPUT) # cc motor 1
-	pi.set_mode(23, pigpio.OUTPUT) # clockwise motor 2
-	pi.set_mode(24, pigpio.OUTPUT) # cc motor 2
-	pi.set_mode(26, pigpio.OUTPUT) # clockwise motor 3
-	pi.set_mode(20, pigpio.OUTPUT) # cc motor 3
+	pi.set_mode(6, pigpio.OUTPUT) # clockwise motor 1
+	pi.set_mode(5, pigpio.OUTPUT) # cc motor 1
+	pi.set_mode(24, pigpio.OUTPUT) # clockwise motor 2
+	pi.set_mode(23, pigpio.OUTPUT) # cc motor 2
+	pi.set_mode(20, pigpio.OUTPUT) # clockwise motor 3
+	pi.set_mode(26, pigpio.OUTPUT) # cc motor 3
 
 if __name__ == '__main__':
 	s = SocketWrapper.SocketWrapper(is_listener=True, socket_info=('', 5020))
