@@ -79,13 +79,12 @@ while True:
     #top left point of image
     origin = (0,0)
     cv2.circle(img, origin, 25, (255,255,255), -1)
-
     
     #bottom right point of image
     end = (800,600)
     cv2.circle(img, end, 25, (255,255,255), -1)
     
-    if count == 0:
+    if count == 0 and hierarchy is not None:
         savedImage = img2
         savedImageColor = img
         
