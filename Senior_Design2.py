@@ -14,6 +14,49 @@ import math
 def midpoint(ptA, ptB):
 	return ((ptA[0] + ptB[0]) * 0.5, (ptA[1] + ptB[1]) * 0.5)
 
+
+def revise_centroid(cx, cy):
+    
+    #Mark the center of the arena
+    cv2.circle(img, (400, 300), 3, (255,255,255), -1)
+    changeValueX = int(abs(400 - cx)/25)
+    changeValueY = int(abs(300 - cy)/30)
+    
+    if cx >= 400:
+        if cy >= 300:
+            cv2.circle(img, (cx - changeValueX, cy - changeValueY), 3, (0,0,0), -1)
+            newcx = cx - changeValueX
+            newcy = cy - changeValueY
+        elif cy < 300:
+            cv2.circle(img, (cx - changeValueX, cy + changeValueY), 3, (0,0,0), -1)
+            newcx = cx - changeValueX
+            newcy = cy + changeValueY
+    elif cx < 400:
+        if cy >= 300:
+            cv2.circle(img, (cx + changeValueX, cy - changeValueY), 3, (0,0,0), -1)
+            newcx = cx + changeValueX
+            newcy = cy - changeValueY
+        elif cy < 300:
+            cv2.circle(img, (cx + changeValueX, cy + changeValueY), 3, (0,0,0), -1)
+            newcx = cx + changeValueX
+            newcy = cy + changeValueY
+            
+    return  newcx, newcy
+
+# =============================================================================
+#     if cx > 750 and cy > 250 and cy < 300:
+#         cv2.circle(img, (cx - 16, cy), 3, (125,255,125), -1)
+# =============================================================================
+    
+   # return cx, cy
+
+#Not sure if I need this
+def get_centroid(centroid):
+    
+    centroidList.append(centroid)
+    
+    return centroidList
+
 def get_angle(netPositionX, netPositionY):
     if netPositionX > 0 and netPositionY < 0:
         if abs(netPositionX) >= abs(netPositionY):
@@ -65,6 +108,7 @@ initial3 = False
 initial4 = False
 
 isRobot = False
+centroidList = []
 
 while True:
     
@@ -144,6 +188,7 @@ while True:
                         cx = int(M['m10']/M['m00'])
                         cy = int(M['m01']/M['m00'])
                         centroidPoint = (cx, cy)
+                        centroidList = get_centroid(centroidPoint)
                # cv2.drawContours(savedImageColor, imgContours, childorNext, (255,0,0), 3)
                 
                 if contourTotal > 1:
@@ -184,8 +229,12 @@ while True:
                 
                 angle1 = get_angle(netPositionX, netPositionY)
                 print("angle of robot 1 is", angle1)
-                     
-                infoRobot1 = (cx, cy, angle1)
+                
+                newcx1, newcy1 = revise_centroid(cx, cy)
+                print("revised centroid is ", newcx1, newcy1)
+                
+                #infoRobot1 = (cx, cy, angle1)
+                infoRobot1 = (newcx1, newcy1, angle1)
             
             elif contourTotal == 3 and isRobot == True:
                 #Prints Robot 2 at centroid position of the body
@@ -216,8 +265,11 @@ while True:
         	       (100, 100), cv2.FONT_HERSHEY_SIMPLEX,
                 1, (0, 0, 255), 2)
 
+                newcx2, newcy2 = revise_centroid(cx, cy)
+                print("revised centroid is ", newcx2, newcy2)
                 
-                infoRobot2 = (cx, cy, angle2)
+                #infoRobot2 = (cx, cy, angle2)
+                infoRobot2 = (newcx2, newcy2, angle2)
                     
                 #Send centroid point of body and relative direction to ros
             elif contourTotal == 4 and isRobot == True:
@@ -241,9 +293,12 @@ while True:
                 print("net position of robot 3", netPosition3)
                 
                 angle3 = get_angle(netPositionX, netPositionY)
+                newcx3, newcy3 = revise_centroid(cx, cy)
+                print("revised centroid is ", newcx3, newcy3)
                 print("angle of robot 3 is", angle3)
                      
-                infoRobot3 = (cx, cy, angle3)
+                #infoRobot3 = (cx, cy, angle3)
+                infoRobot3 = (newcx3, newcy3, angle3)
             
             elif contourTotal == 5 and isRobot == True:
                 #Prints Robot 2 at centroid position of the body
@@ -266,9 +321,12 @@ while True:
                 print("net position of robot 4", netPosition4)
                 
                 angle4 = get_angle(netPositionX, netPositionY)
+                newcx4, newcy4 = revise_centroid(cx, cy)
+                print("revised centroid is ", newcx4, newcy4)
                 print("angle of robot 4 is", angle4)
                      
-                infoRobot4 = (cx, cy, angle4)
+                #infoRobot4 = (cx, cy, angle4)
+                infoRobot4 = (newcx4, newcy4, angle4)
                 
                     
                 
@@ -291,7 +349,9 @@ while True:
         cv2.imshow('saved image with color', savedImageColor)
 
     count = 0
-
+    #This is for me
+    holdcentroidList = centroidList
+    centroidList = []
     cv2.imshow('img', img)
     cv2.imshow('test', thresh)
     
