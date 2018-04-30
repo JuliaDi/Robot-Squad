@@ -3,26 +3,45 @@ import time
 
 io.setmode(io.BCM)
 
-in1_pin = 22
-in2_pin = 17
+motor1cw = 24
+motor1ccw = 23
+motor2cw = 6
+motor2ccw = 5
+motor3cw = 26
+motor3ccw = 20
 
-io.setup(in1_pin, io.OUT)
-io.setup(in2_pin, io.OUT)
+io.setup(motor1cw, io.OUT)
+io.setup(motor1ccw, io.OUT)
+io.setup(motor2cw, io.OUT)
+io.setup(motor2ccw, io.OUT)
+io.setup(motor3cw, io.OUT)
+io.setup(motor3ccw, io.OUT)
+io.setup(18, io.OUT)
 io.setup(13, io.OUT)
+io.setup(19, io.OUT)
 
-p = io.PWM(13, 50*1000)
-p.start(50)
+motor1 = io.PWM(18, 50*1000)
+motor2 = io.PWM(13, 50*1000)
+motor3 = io.PWM(19, 50*1000)
+motor1.start(50)
+motor2.start(50)
+motor3.start(50)
 
 def clockwise():
-    io.output(in1_pin, True)
-    io.output(in2_pin, False)
+    io.output(motor1cw, True)
+    io.output(motor2cw, True)
+    io.output(motor3cw, True)
+    io.output(motor1ccw, False)
+    io.output(motor2ccw, False)
+    io.output(motor3ccw, False)
 
 def counter_clockwise():
-    io.output(in1_pin, False)
-    io.output(in2_pin, True)
-
-
-counter_clockwise()
+    io.output(motor1cw, False)
+    io.output(motor2cw, False)
+    io.output(motor3cw, False)
+    io.output(motor1ccw, True)
+    io.output(motor2ccw, True)
+    io.output(motor3ccw, True)
 
 #while True:
 #    cmd = raw_input("Command, f/r 0..9, E.g. f5 :")
@@ -33,8 +52,14 @@ counter_clockwise()
 #        counter_clockwise()
 #    speed = int(cmd[1]) * 11
 
-print 'running'
-time.sleep(10)
+counter_clockwise()
+print 'counterclockwise'
+time.sleep(5)
+
+print 'clockwise'
+clockwise()
+time.sleep(5)
+
 print 'stopping'
 
 p.stop()
