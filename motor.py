@@ -62,5 +62,7 @@ time.sleep(5)
 
 print 'stopping'
 
-p.stop()
+motor1.stop()
+motor2.stop()
+motor3.stop()
 io.cleanup()
