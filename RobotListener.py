@@ -48,6 +48,12 @@ def setKiwiOutput( msg ):
 		pi.write(26, 0)
 		pi.write(20, 0)
 
+	if pwm1 > 255 or pwm1 < 0:
+		pwm1 = 0
+	if pwm2 > 255 or pwm2 < 0:
+		pwm2 = 0
+	if pwm3 > 255 or pwm3 < 0:
+		pwm3 = 0
 	#set the duty cycle
 	pi.set_PWM_dutycycle(18, abs(pwm1))
 	pi.set_PWM_dutycycle(13, abs(pwm2))
