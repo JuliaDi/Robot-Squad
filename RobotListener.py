@@ -84,4 +84,5 @@ if __name__ == '__main__':
 	        	print(message)
 	except KeyboardInterrupt:
 	    s.close_socket()
-	    sys.exit()
+	    print("Socket closed, waiting again")
+	    #sys.exit()
