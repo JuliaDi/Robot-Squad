@@ -12,7 +12,7 @@ import sys
 import SocketWrapper
 import pigpio
 
-#pi = pigpio.pi()
+pi = pigpio.pi()
 
 def setKiwiOutput( msg ):
 	pwm1, pwm2, pwm3 = [float(t) for t in msg[1:-1].split(",")]
