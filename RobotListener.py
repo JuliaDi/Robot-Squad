@@ -39,14 +39,14 @@ def setKiwiOutput( msg ):
 		pi.write(23, 0)
 
 	if pwm3 > 0:
-		pi.write(20, 1)
-		pi.write(26, 0)
-	elif pwm3 < 0:
-		pi.write(20, 0)
 		pi.write(26, 1)
-	else:
 		pi.write(20, 0)
+	elif pwm3 < 0:
 		pi.write(26, 0)
+		pi.write(20, 1)
+	else:
+		pi.write(26, 0)
+		pi.write(20, 0)
 
 	#set the duty cycle
 	pi.set_PWM_dutycycle(13, abs(pwm1))
