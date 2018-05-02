@@ -331,6 +331,8 @@ while True:
                 msg = robot_position_msg()
                 msg.x = newcx1
                 msg.y = newcy1
+                msg.frontx = Frontcx
+                msg.fronty = Frontcy
                 msg.angle = angle1
                 pub0.publish(msg)
                 print ("published message 0")
@@ -383,6 +385,8 @@ while True:
                 msg = robot_position_msg()
                 msg.x = newcx2
                 msg.y = newcy2
+                msg.frontx = Frontcx
+                msg.fronty = Frontcy
                 msg.angle = angle2
                 pub1.publish(msg)
                     
@@ -431,6 +435,8 @@ while True:
                 msg = robot_position_msg()
                 msg.x = newcx3
                 msg.y = newcy3
+                msg.frontx = Frontcx
+                msg.fronty = Frontcy
                 msg.angle = angle3
                 pub2.publish(msg)
             
@@ -479,6 +485,8 @@ while True:
                 msg = robot_position_msg()
                 msg.x = newcx4
                 msg.y = newcy4
+                msg.frontx = Frontcx
+                msg.fronty = Frontcy
                 msg.angle = angle4
                 pub3.publish(msg)
                 
